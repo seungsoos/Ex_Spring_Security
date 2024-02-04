@@ -1,25 +1,78 @@
-plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.2.2'
-    id 'io.spring.dependency-management' version '1.1.4'
+buildscript {
+    ext {
+        spring = "2.4.1"
+        boot = "org.springframework.boot"
+        lombok = "org.projectlombok:lombok"
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("$boot:spring-boot-gradle-plugin:$spring")
+    }
 }
 
-group = 'org.dummy'
-version = '0.0.1-SNAPSHOT'
-
-java {
-    sourceCompatibility = '17'
+allprojects {
+    group = "com.sp.fc"
+    version = "1.0.0"
 }
 
-repositories {
-    mavenCentral()
+subprojects {
+
+    apply plugin: "java"
+    apply plugin: boot
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "idea"
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        developmentOnly
+        runtimeClasspath {
+            extendsFrom developmentOnly
+        }
+    }
+
+    dependencies {
+//        developmentOnly("$boot:spring-boot-devtools")
+        implementation "$boot:spring-boot-starter-security"
+        implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+        compileOnly lombok
+        testCompileOnly lombok
+        annotationProcessor lombok
+        testAnnotationProcessor lombok
+
+        testImplementation "$boot:spring-boot-starter-test"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+["comp", "web"].each {
+    def subProjectDir = new File(projectDir, it)
+    subProjectDir.eachDir {dir->
+        def projectName = ":${it}-${dir.name}"
+        project(projectName){
+            bootJar.enabled(false)
+            jar.enabled(true)
+        }
+    }
+}
+["server"].each {
+    def subProjectDir = new File(projectDir, it)
+    subProjectDir.eachDir {dir->
+        def projectName = ":${it}-${dir.name}"
+        project(projectName){
+
+        }
+    }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+help.enabled(false)
