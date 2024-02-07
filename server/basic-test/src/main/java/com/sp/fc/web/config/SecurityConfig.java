@@ -36,11 +36,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests((request) ->
-                request.antMatchers("/").permitAll()
-                        .anyRequest().authenticated()
-        );
-        http.formLogin();
-        http.httpBasic();
+//        http.authorizeRequests((request) ->
+//                request.antMatchers("/").permitAll()
+//                        .anyRequest().authenticated()
+//        );
+//        http.formLogin();
+//        http.httpBasic();
+
+        http.
+                headers().disable()
+                .csrf().disable()
+                .formLogin(login ->
+                        login.defaultSuccessUrl("/", false) // 다른페이지 호출 시 로그인하면 dafulat가 아닌, 해당페이지를 이동을 위해 false
+                );
     }
 }
